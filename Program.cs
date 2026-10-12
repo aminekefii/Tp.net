@@ -3,6 +3,10 @@ using MovieApplication.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Serve wwwroot (css/js/lib) even when the app is started outside the Development
+// environment or directly from the build output folder (bin\Debug\net10.0).
+builder.WebHost.UseStaticWebAssets();
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
