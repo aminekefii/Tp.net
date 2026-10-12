@@ -1,0 +1,29 @@
+@model IEnumerable<MovieApplication.Models.Genre>
+
+@{
+    ViewData["Title"] = "Genres";
+}
+
+<h1>Genres</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

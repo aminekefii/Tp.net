@@ -62,12 +62,33 @@ namespace MovieApplication.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("GenreId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("GenreId");
+
                     b.ToTable("Movies");
+                });
+
+            modelBuilder.Entity("MovieApplication.Models.Movie", b =>
+                {
+                    b.HasOne("MovieApplication.Models.Genre", "Genre")
+                        .WithMany("Movies")
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Genre");
+                });
+
+            modelBuilder.Entity("MovieApplication.Models.Genre", b =>
+                {
+                    b.Navigation("Movies");
                 });
 #pragma warning restore 612, 618
         }

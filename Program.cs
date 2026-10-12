@@ -11,6 +11,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
+// Apply pending migrations at startup so a fresh database (e.g. in Docker) gets its schema.
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
