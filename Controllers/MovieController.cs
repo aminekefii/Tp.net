@@ -34,6 +34,7 @@ namespace MovieApplication.Controllers
         {
             if (ModelState.IsValid)
             {
+                movie.DateAdded = DateTime.Now;
                 _db.Movies.Add(movie);
                 _db.SaveChanges();
                 return RedirectToAction("Index");

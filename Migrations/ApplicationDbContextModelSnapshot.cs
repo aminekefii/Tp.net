@@ -17,10 +17,26 @@ namespace MovieApplication.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("dbo")
                 .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("CustomerMovie", b =>
+                {
+                    b.Property<int>("CustomersId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MoviesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CustomersId", "MoviesId");
+
+                    b.HasIndex("MoviesId");
+
+                    b.ToTable("CustomerMovie", "dbo");
+                });
 
             modelBuilder.Entity("MovieApplication.Models.Customer", b =>
                 {
@@ -30,13 +46,22 @@ namespace MovieApplication.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid?>("MembershiptypeID")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customers");
+                    b.HasIndex("MembershiptypeID");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("T_Customer", "dbo");
                 });
 
             modelBuilder.Entity("MovieApplication.Models.Genre", b =>
@@ -51,7 +76,59 @@ namespace MovieApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Genres");
+                    b.ToTable("T_Genre", "dbo");
+                });
+
+            modelBuilder.Entity("MovieApplication.Models.Membershiptype", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DiscountRate")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DurationInMonth")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MemberShipTypes", "dbo");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("8f1c2a51-3d6e-4b1a-9c7d-1a2b3c4d5e01"),
+                            DiscountRate = 0,
+                            DurationInMonth = 0,
+                            Name = "Pay as You Go"
+                        },
+                        new
+                        {
+                            Id = new Guid("8f1c2a51-3d6e-4b1a-9c7d-1a2b3c4d5e02"),
+                            DiscountRate = 10,
+                            DurationInMonth = 1,
+                            Name = "Monthly"
+                        },
+                        new
+                        {
+                            Id = new Guid("8f1c2a51-3d6e-4b1a-9c7d-1a2b3c4d5e03"),
+                            DiscountRate = 15,
+                            DurationInMonth = 3,
+                            Name = "Quarterly"
+                        },
+                        new
+                        {
+                            Id = new Guid("8f1c2a51-3d6e-4b1a-9c7d-1a2b3c4d5e04"),
+                            DiscountRate = 20,
+                            DurationInMonth = 12,
+                            Name = "Annual"
+                        });
                 });
 
             modelBuilder.Entity("MovieApplication.Models.Movie", b =>
@@ -62,26 +139,57 @@ namespace MovieApplication.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid>("GenreId")
+                    b.Property<DateTime>("DateAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("GenreId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("MovieName");
+
+                    b.Property<string>("PhotoPath")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GenreId");
 
-                    b.ToTable("Movies");
+                    b.ToTable("T_Movie", "dbo");
+                });
+
+            modelBuilder.Entity("CustomerMovie", b =>
+                {
+                    b.HasOne("MovieApplication.Models.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MovieApplication.Models.Movie", null)
+                        .WithMany()
+                        .HasForeignKey("MoviesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MovieApplication.Models.Customer", b =>
+                {
+                    b.HasOne("MovieApplication.Models.Membershiptype", "Membershiptype")
+                        .WithMany("Customers")
+                        .HasForeignKey("MembershiptypeID");
+
+                    b.Navigation("Membershiptype");
                 });
 
             modelBuilder.Entity("MovieApplication.Models.Movie", b =>
                 {
                     b.HasOne("MovieApplication.Models.Genre", "Genre")
                         .WithMany("Movies")
-                        .HasForeignKey("GenreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GenreId");
 
                     b.Navigation("Genre");
                 });
@@ -89,6 +197,11 @@ namespace MovieApplication.Migrations
             modelBuilder.Entity("MovieApplication.Models.Genre", b =>
                 {
                     b.Navigation("Movies");
+                });
+
+            modelBuilder.Entity("MovieApplication.Models.Membershiptype", b =>
+                {
+                    b.Navigation("Customers");
                 });
 #pragma warning restore 612, 618
         }
